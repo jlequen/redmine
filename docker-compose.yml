@@ -1,0 +1,35 @@
+version: '3.1'
+
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: redminepwd
+      REDMINE_SECRET_KEY_BASE: supersecretkey
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.redmine.rule=Host(`redmine.srv.spx.ovh`)"
+      - "traefik.http.routers.redmine.entrypoints=websecure"
+#     - "traefik.http.routers.redmine.middlewares=BasicAuthanticator@file"
+      - "traefik.http.services.redmine.loadbalancer.server.port=3000"
+    restart: always
+    networks:
+      - web
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: redminepwd
+      MYSQL_DATABASE: redmine
+    networks:
+      - web
+ 
+
+networks:
+  web:
+    external: true
